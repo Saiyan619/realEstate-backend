@@ -21,6 +21,9 @@ app.get('/', (req, res) => {
 const userRoute = require('./routes/UserRoute') 
 app.use('/user', userRoute, cors())
 
+const houseRoute = require('./routes/HouseRoute') 
+app.use('/house', houseRoute, cors())
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
