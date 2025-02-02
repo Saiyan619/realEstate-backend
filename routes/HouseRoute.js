@@ -1,7 +1,36 @@
 const express = require('express')
 const router = express.Router();
-const House = require('../models/House')
+const multer = require('multer');
+const House = require('../models/House');
 
+
+// Multer Config
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, '/uploads')
+    },
+
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname)
+    }
+});
+
+// File type Filter
+
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimeType = allowedTypes.test(file.mimetype);
+
+    if (extName && mimeType) {
+        cb(null, true); // Accept file
+    } else {
+        cb(new Error("Only image files are allowed!"), false); // Reject file
+    }
+};
+
+
+// Create House
 router.post('/createHouse', async (req, res) => {
     try {
         const {
@@ -35,6 +64,7 @@ router.post('/createHouse', async (req, res) => {
     }
 })
 
+// Get all House
 router.get('/getHouse', async (req, res) => {
     try {
         const houseRes = await House.find().populate('postedBy')
@@ -43,6 +73,8 @@ router.get('/getHouse', async (req, res) => {
         res.status(500).json({message:error.message})
     }
 })
+
+
 
 
 module.exports = router;
