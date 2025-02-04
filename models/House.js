@@ -1,18 +1,18 @@
 const mongoose = require('mongoose')
 
 const houseSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    description: { type: String, required: true }, 
-    price: { type: Number, required: true }, 
-    location: { type: String, required: true }, 
+    title: { type: String,},
+    description: { type: String,  }, 
+    price: { type: Number,  }, 
+    location: { type: String, }, 
     type: { 
         type: String, 
         enum: ['bungalow', 'duplex', 'mansion', 'penthouse', 'apartment'], 
         required: true 
     }, 
-    rooms: { type: Number, required: true }, 
-    bathrooms: { type: Number, required: true }, 
-    images: { type: [String], required: true }, 
+    rooms: { type: Number,  }, 
+    bathrooms: { type: Number, }, 
+    images: { type: [String],  }, 
     postedBy: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User', 

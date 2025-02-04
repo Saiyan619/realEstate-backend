@@ -4,6 +4,13 @@ const multer = require('multer');
 const House = require('../models/House');
 
 
+// Ensure uploads directory exists
+const fs = require('fs');
+if (!fs.existsSync('./uploads')) {
+    fs.mkdirSync('./uploads');
+}
+
+
 // Multer Config
 const storage = multer.diskStorage({
     //First the destination(function)
@@ -43,7 +50,7 @@ const upload = multer({
 
 
 // Create House
-router.post('/createHouse', async (req, res) => {
+router.post('/createHouse', upload.array("images", 5) ,async (req, res) => {
     try {
         const {
             title,
@@ -53,9 +60,11 @@ router.post('/createHouse', async (req, res) => {
             type,
             rooms,
             bathrooms,
-            images,
             postedBy
         } = req.body;
+
+
+        const images = req.files.map(file => file.path);
         
         const newHouse = await House.create({
             title,        
