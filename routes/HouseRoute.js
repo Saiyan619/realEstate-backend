@@ -2,6 +2,9 @@ const express = require('express')
 const router = express.Router();
 const multer = require('multer');
 const House = require('../models/House');
+const path = require('path');
+
+
 
 
 // Ensure uploads directory exists
@@ -15,7 +18,7 @@ if (!fs.existsSync('./uploads')) {
 const storage = multer.diskStorage({
     //First the destination(function)
     destination: function (req, file, cb) {
-        cb(null, '/uploads')
+        cb(null, './uploads')
     },
 
     //second the filname(function)
@@ -50,7 +53,9 @@ const upload = multer({
 
 
 // Create House
-router.post('/createHouse', upload.array("images", 5) ,async (req, res) => {
+router.post('/createHouse', upload.array("images", 5), async (req, res) => {
+    console.log('Request Body:', req.body);
+    console.log('Uploaded Files:', req.files);
     try {
         const {
             title,
