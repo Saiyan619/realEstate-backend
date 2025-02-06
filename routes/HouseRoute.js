@@ -49,7 +49,7 @@ const upload = multer({
     limits: {
         fileSize: 1024 * 1024 * 5
     }
-})
+});
 
 
 // Create House
@@ -100,6 +100,8 @@ router.get('/getHouse', async (req, res) => {
     }
 })
 
+
+// ***** JOY ***** 
 
 
 
