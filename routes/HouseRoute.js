@@ -101,8 +101,6 @@ router.get('/getHouse', async (req, res) => {
 })
 
 
-// ***** JOY ***** 
-
 
 
 module.exports = router;
