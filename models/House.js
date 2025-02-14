@@ -14,9 +14,7 @@ const houseSchema = new mongoose.Schema({
     bathrooms: { type: Number, }, 
     images: { type: [String],  }, 
     postedBy: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User', 
-        required: true 
+        type: String,
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }, 

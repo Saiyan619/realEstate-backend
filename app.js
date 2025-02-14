@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config()
+const path = require('path');
 const { default: mongoose } = require('mongoose');
 var cors = require('cors')
 const app = express();
@@ -17,6 +18,8 @@ db.once('open', () => console.log("Connected"))
 app.get('/', (req, res) => {
   res.send('Hello, this is your Express app!, btw your server running on perfectly');
 });
+
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 const userRoute = require('./routes/UserRoute') 
 app.use('/user', userRoute, cors())

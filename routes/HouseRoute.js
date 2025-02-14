@@ -83,6 +83,7 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
             postedBy
         });
 
+        console.log("postedBy", postedBy)
         res.status(201).json({ message: "House created successfully", house: newHouse });
 
     } catch (error) {
@@ -93,8 +94,20 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
 // Get all House
 router.get('/getHouse', async (req, res) => {
     try {
-        const houseRes = await House.find().populate('postedBy')
+        const houseRes = await House.find().populate('postedBy', 'name email')
         res.status(200).json(houseRes)
+    } catch (error) {
+        res.status(500).json({message:error.message})
+    }
+})
+
+
+// Get House Details by Id
+router.get('/getHouse/:id', async (req, res) => {
+    try {
+        console.log(req.params.id)
+        const houseDetails = await House.findById(req.params.id)
+        res.status(200).json(houseDetails)
     } catch (error) {
         res.status(500).json({message:error.message})
     }
