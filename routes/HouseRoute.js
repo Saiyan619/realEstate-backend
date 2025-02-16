@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router();
 const multer = require('multer');
 const House = require('../models/House');
+const User = require('../models/User');
 const path = require('path');
 
 
@@ -14,7 +15,7 @@ if (!fs.existsSync('./uploads')) {
 }
 
 
-// Multer Config
+// After Making sure the directory exists write Multer Config
 const storage = multer.diskStorage({
     //First the destination(function)
     destination: function (req, file, cb) {
@@ -92,14 +93,60 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
 })
 
 // Get all House
+// router.get('/getHouse', async (req, res) => {
+//     try {
+//         const houseRes = await House.find().
+        
+//         res.status(200).json(houseRes)
+//     } catch (error) {
+//         res.status(500).json({message:error.message})
+//     }
+// })
+
+
+
+// Get all Houses with populated user information using ClerkID
 router.get('/getHouse', async (req, res) => {
     try {
-        const houseRes = await House.find().populate('postedBy', 'name email')
-        res.status(200).json(houseRes)
+      // First, fetch all houses
+      const houses = await House.find();
+      
+      // Check if we have houses to process
+      if (!houses.length) {
+        return res.status(200).json([]);
+      }
+      
+      // Extract all ClerkIDs from the houses (assuming houses have ownerId field with ClerkID)
+      const ownerIds = houses.map(house => house.ownerId);
+      
+      // Fetch all relevant users in one query
+      const users = await User.find({
+        clerkId: { $in: ownerIds }
+      }).select('name email clerkId');
+      
+      // Create a map for quick lookup
+      const userMap = {};
+      users.forEach(user => {
+        userMap[user.clerkId] = user;
+      });
+      
+      // Populate the houses with owner details
+      const populatedHouses = houses.map(house => {
+        const houseObj = house.toObject();
+        const ownerDetails = userMap[house.ownerId] || null;
+        
+        return {
+          ...houseObj,
+          owner: ownerDetails
+        };
+      });
+      
+      res.status(200).json(populatedHouses);
     } catch (error) {
-        res.status(500).json({message:error.message})
+      console.error("Error fetching houses:", error.message);
+      res.status(500).json({message: error.message});
     }
-})
+  });
 
 
 // Get House Details by Id
@@ -107,11 +154,12 @@ router.get('/getHouse/:id', async (req, res) => {
     try {
         console.log(req.params.id)
         const houseDetails = await House.findById(req.params.id)
+      
         res.status(200).json(houseDetails)
     } catch (error) {
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
     }
-})
+});
 
 
 
