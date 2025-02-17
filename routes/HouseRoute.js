@@ -148,16 +148,30 @@ router.get('/getHouse', async (req, res) => {
     }
   });
 
-
-// Get House Details by Id
-router.get('/getHouse/:id', async (req, res) => {
+  router.get('/getHouse/:clerkId', async (req, res) => {
     try {
-        console.log(req.params.id)
-        const houseDetails = await House.findById(req.params.id)
-      
-        res.status(200).json(houseDetails)
+        const { clerkId } = req.params;
+
+        // Fetch house details using the Clerk ID
+        const houseDetails = await House.findOne({ ownerId: clerkId });
+
+        // Check if the house exists
+        if (!houseDetails) {
+            return res.status(404).json({ message: "House not found" });
+        }
+
+        // Fetch owner details from the User collection using Clerk ID
+        const ownerDetails = await User.findOne({ clerkId }).select('name email clerkId');
+
+        // Attach owner details to the response
+        const populatedHouse = {
+            ...houseDetails.toObject(),
+            owner: ownerDetails || null, // If no owner found, set to null
+        };
+
+        res.status(200).json(populatedHouse);
     } catch (error) {
-        res.status(500).json({ message: error.message })
+        res.status(500).json({ message: error.message });
     }
 });
 
