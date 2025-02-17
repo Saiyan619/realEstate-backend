@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
 
 const UserSchema = new mongoose.Schema({
-    userId: { type: String, required: true, unique: true }, // Unique identifier for the user (e.g., Clerk ID)
-    name: { type: String}, // Full name of the user
+    clerkId: { type: String, required: true, unique: true }, // Unique identifier for the user (e.g., Clerk ID)
+    firstName: { type: String}, // Full name of the user
+    lastName: { type: String}, // Full name of the user
     email: { type: String }, // Email for login and communication
     phone: { type: Number, default:null}, // Phone number for inquiries/contact
     location: { type: String, default:null}, // User's primary location (optional)

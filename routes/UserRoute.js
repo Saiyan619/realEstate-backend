@@ -6,16 +6,17 @@ const User = require('../models/User');
 // Create user
 router.post('/create', async (req, res) => {
     try {
-        const { userId, name, email, phone, location } = req.body;
+        const { clerkId, firstName, lastName, email, phone, location } = req.body;
         const data = {
-            userId: userId,
-            name: name,
+            clerkId: clerkId,
+            firstName: firstName,
+            lastName: lastName,
             email: email,
             phone: phone,
             location: location
         };
         const userRes = await User.findOneAndUpdate(
-            { userId },
+            { clerkId },
         data,
             {new:true, upsert:true, runValidators:true}
         )
@@ -27,9 +28,9 @@ router.post('/create', async (req, res) => {
 })
 
 //Get user by clerkId(When user enters a page and goes to their dashboard)
-router.get('/getUser/:userId', async (req, res) => {
+router.get('/getUser/:clerkId', async (req, res) => {
     try {
-        const userRes = await User.find({ userId: req.params.userId })
+        const userRes = await User.find({ clerkId: req.params.clerkId })
         res.status(200).json(userRes)
     } catch (error) {
         res.status(500).json({ message: error.message })
