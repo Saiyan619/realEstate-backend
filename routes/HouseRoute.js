@@ -117,12 +117,12 @@ router.get('/getHouse', async (req, res) => {
       }
       
       // Extract all ClerkIDs from the houses (assuming houses have ownerId field with ClerkID)
-      const ownerIds = houses.map(house => house.ownerId);
+      const ownerIds = houses.map(house => house.postedBy);
       
       // Fetch all relevant users in one query
       const users = await User.find({
         clerkId: { $in: ownerIds }
-      }).select('name email clerkId');
+      }).select('firstName lastName email clerkId');
       
       // Create a map for quick lookup
       const userMap = {};
@@ -133,7 +133,7 @@ router.get('/getHouse', async (req, res) => {
       // Populate the houses with owner details
       const populatedHouses = houses.map(house => {
         const houseObj = house.toObject();
-        const ownerDetails = userMap[house.ownerId] || null;
+        const ownerDetails = userMap[house.postedBy] || null;
         
         return {
           ...houseObj,
@@ -160,7 +160,7 @@ router.get('/getHouse', async (req, res) => {
         }
 
         // Fetch the owner details using the ownerId (Clerk ID) from the User collection
-        const ownerDetails = await User.findOne({ clerkId: houseDetails.ownerId })
+        const ownerDetails = await User.findOne({ clerkId: houseDetails.postedBy })
             .select('name email clerkId'); // Only return necessary fields
 
         // Attach owner details to the house response
