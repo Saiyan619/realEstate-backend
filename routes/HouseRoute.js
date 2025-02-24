@@ -69,24 +69,39 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
             postedBy
         } = req.body;
 
+        if (!postedBy) {
+            return res.status(400).json({ message: "postedBy (user ID) is required" });
+        }
+
+        const user = await User.findOne({ clerkId: postedBy });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
         const images = req.files.map(file => file.path);
-        
+
+        // Create new house entry
         const newHouse = await House.create({
-            title,        
-            description,  
-            price,       
-            location,     
-            type,        
-            rooms,        
-            bathrooms,    
+            title,
+            description,
+            price,
+            location,
+            type,
+            rooms,
+            bathrooms,
             images,
-            postedBy
+            postedBy 
         });
 
-        console.log("postedBy", postedBy)
-        res.status(201).json({ message: "House created successfully", house: newHouse });
+        // Update user's postedHouses array
+        user.postedHouses.push(newHouse._id);
+        await user.save();
 
+        res.status(201).json({
+            message: "House posted successfully",
+            newHouse,
+            postedHousesCount: user.postedHouses.length
+        })
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -149,7 +164,7 @@ router.get('/getHouse', async (req, res) => {
   });
 
 
-  
+  // Get House Details By id
   router.get('/getHouse/:id', async (req, res) => {
     try {
         const houseDetails = await House.findById(req.params.id);
@@ -161,7 +176,7 @@ router.get('/getHouse', async (req, res) => {
 
         // Fetch the owner details using the ownerId (Clerk ID) from the User collection
         const ownerDetails = await User.findOne({ clerkId: houseDetails.postedBy })
-            .select('name email clerkId'); // Only return necessary fields
+            .select('firstName lastName email clerkId'); // Only return necessary fields
 
         // Attach owner details to the house response
         const populatedHouse = {
