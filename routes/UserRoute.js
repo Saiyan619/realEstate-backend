@@ -32,6 +32,7 @@ router.post('/create', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
 //Get user by mongoDb Id(wWhen user decides to check other user/seller profile)
 router.get('/getUserId/:id', async (req, res) => {
     try {
@@ -39,6 +40,24 @@ router.get('/getUserId/:id', async (req, res) => {
         res.status(200).json(userRes)
     } catch (error) {
         res.status(500).json({ message: error.message })
+    }
+});
+
+// Get user profile by Clerk ID
+router.get('/profile/:clerkId', async (req, res) => {
+    try {
+        const { clerkId } = req.params;
+
+        // Find the user by clerkId
+        const user = await User.findOne({ clerkId }).populate("postedHouses"); 
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
