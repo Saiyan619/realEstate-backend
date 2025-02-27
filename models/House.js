@@ -8,11 +8,10 @@ const houseSchema = new mongoose.Schema({
     type: { 
         type: String, 
         enum: ['bungalow', 'duplex', 'mansion', 'penthouse', 'apartment'], 
-        required: true 
-    }, 
-    rooms: { type: Number,  }, 
-    bathrooms: { type: Number, }, 
-    images: { type: [String],  }, 
+        default: 'apartment'}, 
+    rooms: { type: Number}, 
+    bathrooms: { type: Number}, 
+    images: { type: [String]}, 
     postedBy: { 
         type: String,
     },

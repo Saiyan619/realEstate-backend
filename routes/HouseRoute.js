@@ -192,6 +192,42 @@ router.get('/getHouse', async (req, res) => {
 
 
 
+router.patch("/editHouse/:id", upload.array("images", 5), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = {};
+
+        // Convert fields to numbers where necessary
+        if (req.body.title) updateData.title = req.body.title;
+        if (req.body.description) updateData.description = req.body.description;
+        if (req.body.price !== undefined) updateData.price = Number(req.body.price);
+        if (req.body.location) updateData.location = req.body.location;
+        if (req.body.type) updateData.type = req.body.type;
+        if (req.body.rooms !== undefined ) updateData.rooms = Number(req.body.rooms);
+        if (req.body.bathrooms !== undefined) updateData.bathrooms = Number(req.body.bathrooms);
+        if (req.body.postedBy) updateData.postedBy = req.body.postedBy; 
+
+        // If new images are uploaded, add them to the updateData
+        if (req.files && req.files.length > 0) {
+            updateData.images = req.files.map(file => file.path);
+        }
+
+        // Find and update the house
+        const updatedHouse = await House.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedHouse) {
+            return res.status(404).json({ message: "House not found" });
+        }
+
+        res.status(200).json({ message: "House updated successfully", updatedHouse });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
 
 
