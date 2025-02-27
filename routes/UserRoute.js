@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const User = require('../models/User');
+const House = require('../models/House');
+
+
 // Create user
 router.post('/create', async (req, res) => {
     try {
@@ -43,22 +46,33 @@ router.get('/getUserId/:id', async (req, res) => {
     }
 });
 
-// Get user profile by Clerk ID
 router.get('/profile/:clerkId', async (req, res) => {
     try {
         const { clerkId } = req.params;
 
-        // Find the user by clerkId
-        const user = await User.findOne({ clerkId }).populate("postedHouses"); 
+        // Find the user by clerkId and populate postedHouses
+        const user = await User.findOne({ clerkId }).populate({
+            path: 'postedHouses',
+            model: 'House',
+            select: 'title description price location type rooms bathrooms images postedBy'
+        });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        res.status(200).json(user);
+        // Fetch posted houses separately using clerkId
+        const postedHouses = await House.find({ postedBy: clerkId });
+
+        res.status(200).json({
+            ...user.toObject(),
+            postedHouses // Override populated houses to fetch using Clerk ID
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
+
+
 
 module.exports = router

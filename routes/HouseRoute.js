@@ -53,7 +53,6 @@ const upload = multer({
 });
 
 
-// Create House
 router.post('/createHouse', upload.array("images", 5), async (req, res) => {
     console.log('Request Body:', req.body);
     console.log('Uploaded Files:', req.files);
@@ -66,13 +65,14 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
             type,
             rooms,
             bathrooms,
-            postedBy
+            postedBy // Clerk ID is received here
         } = req.body;
 
         if (!postedBy) {
-            return res.status(400).json({ message: "postedBy (user ID) is required" });
+            return res.status(400).json({ message: "postedBy (Clerk ID) is required" });
         }
 
+        // Find the user by Clerk ID
         const user = await User.findOne({ clerkId: postedBy });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -80,7 +80,7 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
 
         const images = req.files.map(file => file.path);
 
-        // Create new house entry
+        // Create new house entry, store `postedBy` as Clerk ID
         const newHouse = await House.create({
             title,
             description,
@@ -90,7 +90,7 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
             rooms,
             bathrooms,
             images,
-            postedBy 
+            postedBy // Store Clerk ID directly
         });
 
         // Update user's postedHouses array
@@ -101,11 +101,12 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
             message: "House posted successfully",
             newHouse,
             postedHousesCount: user.postedHouses.length
-        })
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-})
+});
+
 
 // Get all House
 // router.get('/getHouse', async (req, res) => {
