@@ -230,5 +230,15 @@ router.patch("/editHouse/:id", upload.array("images", 5), async (req, res) => {
 });
 
 
+router.delete("/deleteHouse/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const house = await House.findByIdAndDelete(id);
+        res.status(200).json({ message: "House deleted successfully", house });
+    } catch (error) {
+        res.status(500).json({message:error.message})
+    }
+})
+
 
 module.exports = router;
