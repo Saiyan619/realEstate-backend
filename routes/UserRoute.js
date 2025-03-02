@@ -36,10 +36,18 @@ router.post('/create', async (req, res) => {
     }
 });
 
-//Get user by mongoDb Id(wWhen user decides to check other user/seller profile)
 router.get('/getUserId/:id', async (req, res) => {
     try {
         const userRes = await User.findById(req.params.id)
+
+         // Fetch posted houses separately using clerkId
+         const postedHouses = await House.find({ postedBy: req.params.id });
+
+         res.status(200).json({
+             ...userRes.toObject(),
+             postedHouses // Override populated houses to fetch using Clerk ID
+         });
+
         res.status(200).json(userRes)
     } catch (error) {
         res.status(500).json({ message: error.message })
