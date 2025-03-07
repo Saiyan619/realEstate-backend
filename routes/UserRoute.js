@@ -14,23 +14,32 @@ router.post('/create', async (req, res) => {
             return res.status(400).json({ message: "clerkId is required" });
         }
 
-        const data = {
+        // Check if user already exists
+        let user = await User.findOne({ clerkId });
+
+    
+        if (!user) {
+          // Create new user with limited info
+          user = await User.create({
             clerkId,
             firstName,
             lastName,
             email,
-            phone,
             location,
-            userId: clerkId // Set userId to clerkId to ensure it's not null
-        };
+            phone,
+          });
+        }
+    
+        res.status(200).json({ message: "User authenticated", user });
 
-        const userRes = await User.findOneAndUpdate(
-            { clerkId: clerkId },
-            data,
-            { new: true, upsert: true, runValidators: true }
-        );
+        // const userRes = await User.findOne(
+        //     { clerkId: clerkId },
+        //     data,
+        //     { new: true, upsert: true, runValidators: true }
+        // );
 
-        res.status(200).json(userRes);
+
+        // res.status(200).json(userRes);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -80,6 +89,38 @@ router.get('/profile/:clerkId', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+
+router.patch('/edit-userProfile/', async (req, res) => {
+    try {
+        const { clerkId, firstName, lastName, email, phone, location } = req.body;
+
+        if (!clerkId) {
+          return res.status(400).json({message:"user doesnt not exist"})
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            {clerkId},
+            {firstName,
+            lastName,
+            email,
+            location,
+                phone,
+            },
+            {new:true}
+        )
+
+        if (!updatedUser) {
+            return res.status(400).json({message:"user not found"})
+        }
+
+        res.status(200).json(updatedUser)
+
+
+    } catch (error) {
+        res.status(500).json({message:error.message})
+    }
+})
 
 
 
