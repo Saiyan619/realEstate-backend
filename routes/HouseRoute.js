@@ -192,7 +192,7 @@ router.get('/getHouse', async (req, res) => {
 });
 
 
-
+// Edit/Update House
 router.patch("/editHouse/:id", upload.array("images", 5), async (req, res) => {
     try {
         const { id } = req.params;
@@ -230,7 +230,7 @@ router.patch("/editHouse/:id", upload.array("images", 5), async (req, res) => {
     }
 });
 
-
+//Delete House
 router.delete("/deleteHouse/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -243,42 +243,46 @@ router.delete("/deleteHouse/:id", async (req, res) => {
 
 
 
-
+// Filter House
 router.get("/search", async (req, res) => {
-  try {
-        const { title, type, minPrice, maxPrice, location } = req.query;
-
-        let filter = {};
-
-        if (title) {
-            filter.title = { $regex: new RegExp(title, 'i') }; // Case-insensitive title search
-        }
-
-        if (type) {
-            filter.type = type; // Exact match for house type
-        }
-
-        if (location) {
-            filter.location = { $regex: new RegExp(location, 'i') }; // Case-insensitive location search
-        }
-
-        if (minPrice || maxPrice) {
-            filter.price = {};
-            if (minPrice) filter.price.$gte = Number(minPrice);
-            if (maxPrice) filter.price.$lte = Number(maxPrice);
-        }
-
-        console.log("Search Filters:", filter); // Debugging
-
-        const listings = await House.find(filter).sort({ createdAt: -1 });
-
-        res.json(listings);
-      
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-});
-
+    try {
+      const { title, type, minPrice, maxPrice, location } = req.query;
+  
+      let filter = {};
+  
+      if (title) {
+        filter.title = { $regex: new RegExp(title, "i") }; // Case-insensitive title search
+      }
+  
+      if (type) {
+        filter.type = type; // Exact match for house type
+      }
+  
+      if (location) {
+        filter.location = { $regex: new RegExp(location, "i") }; // Case-insensitive location search
+      }
+  
+      if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) filter.price.$gte = Number(minPrice);
+        if (maxPrice) filter.price.$lte = Number(maxPrice);
+      }
+  
+      console.log("Search Filters:", filter); // Debugging
+  
+      // If no filters are provided, return an empty array
+      if (Object.keys(filter).length === 0) {
+        return res.json([]); // Instead of fetching all houses, return an empty array
+      }
+  
+      const listings = await House.find(filter).sort({ createdAt: -1 });
+  
+      res.json(listings);
+    } catch (error) {
+      res.status(500).json({ message: "Server error", error });
+    }
+  });
+  
 
 
 
