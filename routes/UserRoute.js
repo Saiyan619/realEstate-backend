@@ -45,6 +45,8 @@ router.post('/create', async (req, res) => {
     }
 });
 
+
+//Get user by id
 router.get('/getUserId/:id', async (req, res) => {
     try {
         const userRes = await User.findById(req.params.id)
@@ -63,6 +65,8 @@ router.get('/getUserId/:id', async (req, res) => {
     }
 });
 
+
+// get user profile with clerkId
 router.get('/profile/:clerkId', async (req, res) => {
     try {
         const { clerkId } = req.params;
@@ -90,7 +94,7 @@ router.get('/profile/:clerkId', async (req, res) => {
     }
 });
 
-
+//Edit/Update user Profile
 router.patch('/edit-userProfile/', async (req, res) => {
     try {
         const { clerkId, firstName, lastName, email, phone, location } = req.body;
