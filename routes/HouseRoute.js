@@ -4,53 +4,101 @@ const multer = require('multer');
 const House = require('../models/House');
 const User = require('../models/User');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+  
+  // Setup Cloudinary storage
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+      folder: 'houses', // The folder in Cloudinary to store images
+      format: async (req, file) => {
+        // Support the same formats you were accepting before
+        const extension = path.extname(file.originalname).toLowerCase();
+        if(extension === '.jpeg' || extension === '.jpg') return 'jpg';
+        if(extension === '.png') return 'png';
+        if(extension === '.webp') return 'webp';
+        return 'jpg'; // Default format
+      },
+      public_id: (req, file) => {
+        // Generate a unique public_id similar to your original naming
+        return `house_${Date.now()}_${path.parse(file.originalname).name}`;
+      }
+    }
+  });
+
+  // Update Multer to use Cloudinary storage
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = /jpeg|jpg|png|webp/;
+      const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+      const mimeType = allowedTypes.test(file.mimetype);
+  
+      if (extName && mimeType) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only image files are allowed!"), false);
+      }
+    },
+    limits: {
+      fileSize: 1024 * 1024 * 5 // 5MB limit
+    }
+  });
 
 
 
 // Ensure uploads directory exists
-const fs = require('fs');
-if (!fs.existsSync('./uploads')) {
-    fs.mkdirSync('./uploads');
-}
+// const fs = require('fs');
+// if (!fs.existsSync('./uploads')) {
+//     fs.mkdirSync('./uploads');
+// }
 
 
 // After Making sure the directory exists write Multer Config
-const storage = multer.diskStorage({
-    //First the destination(function)
-    destination: function (req, file, cb) {
-        cb(null, './uploads')
-    },
+// const storage = multer.diskStorage({
+//     //First the destination(function)
+//     destination: function (req, file, cb) {
+//         cb(null, './uploads')
+//     },
 
-    //second the filname(function)
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname)
-    }
-});
+//     //second the filname(function)
+//     filename: function (req, file, cb) {
+//         cb(null, Date.now() + "-" + file.originalname)
+//     }
+// });
 
 
 // File type Filter
 
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp/; //Allow only jpeg, jpg, png, webp files
-    const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase()); //Check if the file extension is allowed
-    const mimeType = allowedTypes.test(file.mimetype); //Check if the file mimetype is allowed
+// const fileFilter = (req, file, cb) => {
+//     const allowedTypes = /jpeg|jpg|png|webp/; //Allow only jpeg, jpg, png, webp files
+//     const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase()); //Check if the file extension is allowed
+//     const mimeType = allowedTypes.test(file.mimetype); //Check if the file mimetype is allowed
 
-    if (extName && mimeType) {
-        cb(null, true); // Accept file
-    } else {
-        cb(new Error("Only image files are allowed!"), false); // Reject file
-    }
-};
+//     if (extName && mimeType) {
+//         cb(null, true); // Accept file
+//     } else {
+//         cb(new Error("Only image files are allowed!"), false); // Reject file
+//     }
+// };
 
 // Multer middleware
-const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 1024 * 1024 * 5
-    }
-});
+// const upload = multer({
+//     storage: storage,
+//     fileFilter: fileFilter,
+//     limits: {
+//         fileSize: 1024 * 1024 * 5
+//     }
+// });
 
 
 router.post('/createHouse', upload.array("images", 5), async (req, res) => {
@@ -102,6 +150,7 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
             newHouse,
             postedHousesCount: user.postedHouses.length
         });
+        console.log(images)
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
