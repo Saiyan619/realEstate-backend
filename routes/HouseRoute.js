@@ -56,50 +56,6 @@ const upload = multer({
 
 
 
-// Ensure uploads directory exists
-// const fs = require('fs');
-// if (!fs.existsSync('./uploads')) {
-//     fs.mkdirSync('./uploads');
-// }
-
-
-// After Making sure the directory exists write Multer Config
-// const storage = multer.diskStorage({
-//     //First the destination(function)
-//     destination: function (req, file, cb) {
-//         cb(null, './uploads')
-//     },
-
-//     //second the filname(function)
-//     filename: function (req, file, cb) {
-//         cb(null, Date.now() + "-" + file.originalname)
-//     }
-// });
-
-
-// File type Filter
-
-// const fileFilter = (req, file, cb) => {
-//     const allowedTypes = /jpeg|jpg|png|webp/; //Allow only jpeg, jpg, png, webp files
-//     const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase()); //Check if the file extension is allowed
-//     const mimeType = allowedTypes.test(file.mimetype); //Check if the file mimetype is allowed
-
-//     if (extName && mimeType) {
-//         cb(null, true); // Accept file
-//     } else {
-//         cb(new Error("Only image files are allowed!"), false); // Reject file
-//     }
-// };
-
-// Multer middleware
-// const upload = multer({
-//     storage: storage,
-//     fileFilter: fileFilter,
-//     limits: {
-//         fileSize: 1024 * 1024 * 5
-//     }
-// });
-
 
 router.post('/createHouse', upload.array("images", 5), async (req, res) => {
     console.log('Request Body:', req.body);

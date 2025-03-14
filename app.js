@@ -19,8 +19,6 @@ app.get('/', (req, res) => {
   res.send('Hello, this is your Express app!, btw your server running on perfectly');
 });
 
-// app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
-
 const userRoute = require('./routes/UserRoute') 
 app.use('/user', userRoute, cors())
 
