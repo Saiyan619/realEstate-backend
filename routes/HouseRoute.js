@@ -58,8 +58,8 @@ const upload = multer({
 
 
 router.post('/createHouse', upload.array("images", 5), async (req, res) => {
-    console.log('Request Body:', req.body);
-    console.log('Uploaded Files:', req.files);
+    // console.log('Request Body:', req.body);
+    // console.log('Uploaded Files:', req.files);
     try {
         const {
             title,
@@ -106,7 +106,7 @@ router.post('/createHouse', upload.array("images", 5), async (req, res) => {
             newHouse,
             postedHousesCount: user.postedHouses.length
         });
-        console.log(images)
+        // console.log(images)
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
