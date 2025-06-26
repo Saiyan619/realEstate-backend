@@ -6,7 +6,10 @@ const UserSchema = new mongoose.Schema({
     firstName: { type: String }, 
     lastName: { type: String }, 
     email: { type: String }, 
-    phone: { type: Number, default: 0 }, 
+     phone: { 
+        type: String,
+        sparse: true   
+    },
     location: { type: String, default: " " }, 
     savedHouses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'House' }], 
     postedHouses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'House' }], 

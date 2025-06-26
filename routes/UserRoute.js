@@ -25,8 +25,10 @@ router.post('/create', async (req, res) => {
             firstName,
             lastName,
             email,
-            location,
-            phone,
+          // Only update phone if it's provided and not empty
+                    ...(phone && phone.trim() !== '' && { phone }),
+                    // Only update location if it's provided
+                    ...(location && { location }),
           });
         }
     

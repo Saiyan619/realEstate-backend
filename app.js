@@ -16,7 +16,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverS
 db.once('open', () => console.log("Connected"))
 
 app.get('/', (req, res) => {
-  res.send('Hello, this is your Express app!, btw your server running on perfectly');
+  res.send('Hello, this is your Express app!, btw your server running perfectly');
 });
 
 const userRoute = require('./routes/UserRoute') 
