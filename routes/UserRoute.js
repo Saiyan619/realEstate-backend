@@ -8,7 +8,7 @@ const House = require('../models/House');
 router.post('/create', async (req, res) => {
     try {
         const { clerkId, firstName, lastName, email, phone, location } = req.body;
-
+        
         // Ensure clerkId is provided
         if (!clerkId) {
             return res.status(400).json({ message: "clerkId is required" });
@@ -16,33 +16,73 @@ router.post('/create', async (req, res) => {
 
         // Check if user already exists
         let user = await User.findOne({ clerkId });
+   
+        if (user) {
+            // For existing users, only update fields that are currently empty
+            const updateData = {
+                lastLoginAt: new Date(),
+                updatedAt: new Date()
+            };
 
-    
-        if (!user) {
-          // Create new user with limited info
-          user = await User.create({
-            clerkId,
-            firstName,
-            lastName,
-            email,
-          // Only update phone if it's provided and not empty
-                    ...(phone && phone.trim() !== '' && { phone }),
-                    // Only update location if it's provided
-                    ...(location && { location }),
-          });
+            // Only update if the field is empty/null in database
+            if (!user.firstName && firstName) {
+                updateData.firstName = firstName;
+            }
+            
+            if (!user.lastName && lastName) {
+                updateData.lastName = lastName;
+            }
+            
+            if (!user.email && email) {
+                updateData.email = email;
+            }
+            
+            if (!user.phone && phone && phone.trim() !== '') {
+                updateData.phone = phone;
+            }
+            
+            if (!user.location && location && location.trim() !== '') {
+                updateData.location = location;
+            }
+
+            // Arrays are preserved automatically (savedHouses, postedHouses)
+            // Only update if completely empty - but this should never happen for existing users
+
+            user = await User.findOneAndUpdate(
+                { clerkId },
+                updateData,
+                { new: true, runValidators: true }
+            );
+            
+            return res.status(200).json({ 
+                message: "User login recorded", 
+                user,
+                isNewUser: false,
+                updatedFields: Object.keys(updateData).filter(key => key !== 'lastLoginAt' && key !== 'updatedAt')
+            });
+        } else {
+            // Create new user
+            const userData = {
+                clerkId,
+                firstName,
+                lastName,
+                email,
+                // Only include phone if it exists and is not empty
+                ...(phone && phone.trim() !== '' && { phone }),
+                // Only include location if it exists
+                ...(location && { location })
+            };
+
+            user = await User.create(userData);
+            
+            return res.status(201).json({ 
+                message: "User created successfully", 
+                user,
+                isNewUser: true 
+            });
         }
-    
-        res.status(200).json({ message: "User authenticated", user });
 
-        // const userRes = await User.findOne(
-        //     { clerkId: clerkId },
-        //     data,
-        //     { new: true, upsert: true, runValidators: true }
-        // );
-
-
-        // res.status(200).json(userRes);
-    } catch (error) {
+    }  catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
